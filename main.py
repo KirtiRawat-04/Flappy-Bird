@@ -19,7 +19,9 @@ PLAYER = os.path.join(ASSET_PATH, "bird.png")
 BACKGROUND = os.path.join(ASSET_PATH, "background.png")
 PIPE = os.path.join(ASSET_PATH, "pipe.png")
 
+
 def welcomeScreen():
+    """Shows welcome screen until the player presses a key"""
     playerx = int(SCREENWIDTH / 5)
     playery = int((SCREENHEIGHT - GAME_SPRITES['player'].get_height()) / 2)
     message = GAME_SPRITES['message']
@@ -44,10 +46,12 @@ def welcomeScreen():
                 pygame.display.update()
                 FPSCLOCK.tick(FPS)
 
+
 def mainGame():
+    """Main game loop"""
     score = 0
     playerx = int(SCREENWIDTH / 5)
-    playery = int(SCREENHEIGHT / 2)   # ✅ Fixed position
+    playery = int(SCREENHEIGHT / 2)  # ✅ Fixed correct position
     basex = 0
 
     newPipe1 = getRandomPipe()
@@ -85,6 +89,7 @@ def mainGame():
         if crashTest:
             return
 
+        # Score update
         playerMidPos = playerx + GAME_SPRITES['player'].get_width() / 2
         for pipe in upperPipes:
             pipeMidPos = pipe['x'] + GAME_SPRITES['pipe'][0].get_width() / 2
@@ -93,6 +98,7 @@ def mainGame():
                 print(f"Your score is {score}")
                 GAME_SOUNDS['point'].play()
 
+        # Player mechanics
         if playerVelY < playerMaxVelY and not playerFlapped:
             playerVelY += playerAccY
 
@@ -101,19 +107,23 @@ def mainGame():
         playerHeight = GAME_SPRITES['player'].get_height()
         playery = playery + min(playerVelY, GROUNDY - playery - playerHeight)
 
+        # Pipes movement
         for upperPipe, lowerPipe in zip(upperPipes, lowerPipes):
             upperPipe['x'] += pipeVelX
             lowerPipe['x'] += pipeVelX
 
+        # Add new pipe
         if 0 < upperPipes[0]['x'] < 5:
             newpipe = getRandomPipe()
             upperPipes.append(newpipe[0])
             lowerPipes.append(newpipe[1])
 
+        # Remove pipe if out of screen
         if upperPipes[0]['x'] < -GAME_SPRITES['pipe'][0].get_width():
             upperPipes.pop(0)
             lowerPipes.pop(0)
 
+        # Draw everything
         SCREEN.blit(GAME_SPRITES['background'], (0, 0))
         for upperPipe, lowerPipe in zip(upperPipes, lowerPipes):
             SCREEN.blit(GAME_SPRITES['pipe'][0], (upperPipe['x'], upperPipe['y']))
@@ -121,6 +131,8 @@ def mainGame():
 
         SCREEN.blit(GAME_SPRITES['base'], (basex, GROUNDY))
         SCREEN.blit(GAME_SPRITES['player'], (playerx, playery))
+
+        # Draw score
         myDigits = [int(x) for x in list(str(score))]
         width = sum([GAME_SPRITES['numbers'][d].get_width() for d in myDigits])
         Xoffset = (SCREENWIDTH - width) / 2
@@ -128,10 +140,13 @@ def mainGame():
         for digit in myDigits:
             SCREEN.blit(GAME_SPRITES['numbers'][digit], (Xoffset, SCREENHEIGHT * 0.12))
             Xoffset += GAME_SPRITES['numbers'][digit].get_width()
+
         pygame.display.update()
         FPSCLOCK.tick(FPS)
 
+
 def isCollide(playerx, playery, upperPipes, lowerPipes):
+    """Collision detection"""
     if playery > GROUNDY - 25 or playery < 0:
         GAME_SOUNDS['hit'].play()
         return True
@@ -149,7 +164,9 @@ def isCollide(playerx, playery, upperPipes, lowerPipes):
 
     return False
 
+
 def getRandomPipe():
+    """Generates random pipes"""
     pipeHeight = GAME_SPRITES['pipe'][0].get_height()
     offset = SCREENHEIGHT / 3
     y2 = offset + random.randrange(0, int(SCREENHEIGHT - GAME_SPRITES['base'].get_height() - 1.2 * offset))
@@ -160,6 +177,7 @@ def getRandomPipe():
         {'x': pipeX, 'y': y2}    # lower
     ]
     return pipe
+
 
 if __name__ == "__main__":
     pygame.init()
