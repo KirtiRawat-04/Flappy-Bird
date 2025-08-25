@@ -1,5 +1,6 @@
 import random
 import sys
+import os
 import pygame
 from pygame.locals import *
 
@@ -8,12 +9,15 @@ FPS = 32
 SCREENWIDTH = 289
 SCREENHEIGHT = 511
 SCREEN = pygame.display.set_mode((SCREENWIDTH, SCREENHEIGHT))
-GROUNDY = SCREENHEIGHT * 0.8
+GROUNDY = int(SCREENHEIGHT * 0.8)
 GAME_SPRITES = {}
 GAME_SOUNDS = {}
-PLAYER = 'gallery/sprites/bird.png'
-BACKGROUND = 'gallery/sprites/background.png'
-PIPE = 'gallery/sprites/pipe.png'
+ASSET_PATH = os.path.join(os.path.dirname(__file__), "gallery", "sprites")
+AUDIO_PATH = os.path.join(os.path.dirname(__file__), "gallery", "audio")
+
+PLAYER = os.path.join(ASSET_PATH, "bird.png")
+BACKGROUND = os.path.join(ASSET_PATH, "background.png")
+PIPE = os.path.join(ASSET_PATH, "pipe.png")
 
 def welcomeScreen():
     playerx = int(SCREENWIDTH / 5)
@@ -43,7 +47,7 @@ def welcomeScreen():
 def mainGame():
     score = 0
     playerx = int(SCREENWIDTH / 5)
-    playery = int(SCREENWIDTH / 2)
+    playery = int(SCREENHEIGHT / 2)   # ✅ Fixed position
     basex = 0
 
     newPipe1 = getRandomPipe()
@@ -160,13 +164,13 @@ def getRandomPipe():
 if __name__ == "__main__":
     pygame.init()
     FPSCLOCK = pygame.time.Clock()
-    pygame.display.set_caption('Flappy Bird by C.S.E 3rd Year')
+    pygame.display.set_caption('Flappy Bird by Somesh Singh')
 
     # Load sprites
     GAME_SPRITES['numbers'] = tuple(
-        pygame.image.load(f'gallery/sprites/{i}.png').convert_alpha() for i in range(10)
+        pygame.image.load(os.path.join(ASSET_PATH, f"{i}.png")).convert_alpha() for i in range(10)
     )
-    GAME_SPRITES['base'] = pygame.image.load('gallery/sprites/base.png').convert_alpha()
+    GAME_SPRITES['base'] = pygame.image.load(os.path.join(ASSET_PATH, 'base.png')).convert_alpha()
     GAME_SPRITES['pipe'] = (
         pygame.transform.rotate(pygame.image.load(PIPE).convert_alpha(), 180),
         pygame.image.load(PIPE).convert_alpha()
@@ -174,16 +178,18 @@ if __name__ == "__main__":
     GAME_SPRITES['background'] = pygame.image.load(BACKGROUND).convert()
     GAME_SPRITES['player'] = pygame.image.load(PLAYER).convert_alpha()
 
-    # Resize message.png if needed (force resize to fit screen)
-    raw_message = pygame.image.load('gallery/sprites/message.png').convert_alpha()
-    GAME_SPRITES['message'] = pygame.transform.scale(raw_message, (200, 200))
+    # Auto-fit message image
+    raw_message = pygame.image.load(os.path.join(ASSET_PATH, 'message.png')).convert_alpha()
+    scale_w = int(SCREENWIDTH * 0.7)
+    scale_h = int(SCREENHEIGHT * 0.4)
+    GAME_SPRITES['message'] = pygame.transform.scale(raw_message, (scale_w, scale_h))
 
     # Load sounds
-    GAME_SOUNDS['die'] = pygame.mixer.Sound('gallery/audio/die.wav')
-    GAME_SOUNDS['hit'] = pygame.mixer.Sound('gallery/audio/hit.wav')
-    GAME_SOUNDS['point'] = pygame.mixer.Sound('gallery/audio/point.wav')
-    GAME_SOUNDS['swoosh'] = pygame.mixer.Sound('gallery/audio/swoosh.wav')
-    GAME_SOUNDS['wing'] = pygame.mixer.Sound('gallery/audio/wing.wav')
+    GAME_SOUNDS['die'] = pygame.mixer.Sound(os.path.join(AUDIO_PATH, 'die.wav'))
+    GAME_SOUNDS['hit'] = pygame.mixer.Sound(os.path.join(AUDIO_PATH, 'hit.wav'))
+    GAME_SOUNDS['point'] = pygame.mixer.Sound(os.path.join(AUDIO_PATH, 'point.wav'))
+    GAME_SOUNDS['swoosh'] = pygame.mixer.Sound(os.path.join(AUDIO_PATH, 'swoosh.wav'))
+    GAME_SOUNDS['wing'] = pygame.mixer.Sound(os.path.join(AUDIO_PATH, 'wing.wav'))
 
     while True:
         welcomeScreen()
